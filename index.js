@@ -21,7 +21,7 @@ app.use(cors(corsOptions));
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
 const accountSid = "AC0d7457d10c2b1cd9f43b607296423561";
-const authToken = "ccf75a6fde909c89789fbc864215fce7";
+const authToken = "c24cbe065939dea1499646be6e1387d3";
 const verifySid = "VA9f62c22099eed2db8a265549bd2fdfbc";
 const client = require("twilio")(accountSid, authToken);
 
