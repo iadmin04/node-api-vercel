@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
 });
 
 const userModel = mongoose.model("User", userSchema);
-mongoose.connect("mongodb://localhost:27017/usersDB");
+mongoose.connect("mongodb+srv://m92064030:6PhuPPyQfYrDRwwZ@cluster0.0gelzu4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
 // Download the helper library from https://www.twilio.com/docs/node/install
 // Set environment variables for your credentials
