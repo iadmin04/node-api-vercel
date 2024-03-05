@@ -19,6 +19,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  password: String,
   mobile: Number,
   otpVerified: Boolean
 });
@@ -40,7 +43,7 @@ app.get("/", (req, res) => {
 })
 
 app.post("/signup", async (req, res) => {
-  const { mobile } = req.body;
+  const { name,email,password,mobile } = req.body;
 
   console.log(req.body);
 
@@ -58,6 +61,9 @@ app.post("/signup", async (req, res) => {
       console.log(verification.status);
 
       const user = new userModel({
+        name: name,
+        email: email,
+        password: password,
         mobile: mobile,
         otpVerified: false
       })
