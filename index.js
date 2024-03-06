@@ -33,7 +33,7 @@ mongoose.connect("mongodb+srv://m92064030:6PhuPPyQfYrDRwwZ@cluster0.0gelzu4.mong
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
 const accountSid = "AC0d7457d10c2b1cd9f43b607296423561";
-const authToken = "c24cbe065939dea1499646be6e1387d3";
+const authToken = "65948ac43a6824ff3f0e176cb5eb0d3e";
 const verifySid = "VA9f62c22099eed2db8a265549bd2fdfbc";
 const client = require("twilio")(accountSid, authToken);
 
