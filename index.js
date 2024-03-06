@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const port = 3000;
 const app = express();
@@ -17,6 +19,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+const key = "thisIsNotmySecret";
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -59,11 +63,13 @@ app.post("/signup", async (req, res) => {
         channel: 'sms',
       });
       console.log(verification.status);
-
+    
+      const hashedPassword = await bcrypt.hash(password,10);
+      
       const user = new userModel({
         name: name,
         email: email,
-        password: password,
+        password: hashedPassword,
         mobile: mobile,
         otpVerified: false
       })
@@ -110,14 +116,21 @@ app.post("/login", async (req,res)=>{
   const {email , password} = req.body;
 
   try {
-    const userExists = await userModel.findOne({email: email , password: password});
-    if(userExists){
-      res.status(200).json({ success: true });
-    }
-    else{
+    const userExists = await userModel.findOne({email: email});
+
+    if(!userExists){
       res.status(401).json({ error: 'Invalid credentials'});
+    } 
+
+    const passwordMatch = await bcrypt.compare(password , userExists.password);
+    if(!passwordMatch){
+      res.status(401).json({ message: 'Incorrect password' });
     }
-    
+
+    const token = jwt.sign({userId: userExists._id}, key);
+
+    res.status(200).json({token});
+  
   } catch (error) {
     console.error(error);
     res.status(500).json({error: 'User not found'});
