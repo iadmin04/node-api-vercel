@@ -106,6 +106,24 @@ app.post('/verify', async (req, res) => {
   }
 });
 
+app.post("/login", async (req,res)=>{
+  const {email , password} = req.body;
+
+  try {
+    const userExists = await userModel.findOne({email: email , password: password});
+    if(userExists){
+      res.status(200).json({ success: true });
+    }
+    else{
+      res.status(401).json({ error: 'Invalid credentials'});
+    }
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: 'User not found'});
+  }
+})
+
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });
