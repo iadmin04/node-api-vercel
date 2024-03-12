@@ -10,6 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 const corsOptions = {
   origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -20,6 +21,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// var token;
 const key = "thisIsNotmySecret";
 
 const userSchema = new mongoose.Schema({
@@ -42,6 +44,7 @@ const verifySid = "VA9f62c22099eed2db8a265549bd2fdfbc";
 const client = require("twilio")(accountSid, authToken);
 
 
+
 app.get("/", (req, res) => {
   res.send("hello");
 })
@@ -49,7 +52,7 @@ app.get("/", (req, res) => {
 app.post("/signup", async (req, res) => {
   const { name,email,password,mobile } = req.body;
 
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
     
@@ -129,12 +132,45 @@ app.post("/login", async (req,res)=>{
 
     const token = jwt.sign({userId: userExists._id}, key);
 
+    // jwt.verify(token, key, (err, decoded) => {
+    //   if (err) {
+    //     return res.status(401).json({ error: err });
+    //   }
+  
+    //    verifiedToken= decoded.userId;
+    // });
+
+    // res.status(200).json({verifiedToken});
     res.status(200).json({token});
+
+
   
   } catch (error) {
     console.error(error);
     res.status(500).json({error: 'User not found'});
   }
+})
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  console.log(token);
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized - Token not provided' });
+  }
+
+  jwt.verify(token, key, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: err });
+    }
+
+    req.userId = decoded.userId;
+    next();
+  });
+};
+
+app.post("/profile" , verifyToken , async(req,res)=>{
+  res.json({user: req.userId});
 })
 
 app.listen(port, () => {
