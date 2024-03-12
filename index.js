@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
@@ -10,16 +12,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cors({ 
+  origin: '*', 
+  methods: '*', 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+  credentials: true, 
+  optionsSuccessStatus: 200  // for preflight requests
+}));
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*'); 
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type');
-//   next();
-// });
-app.use(cors({ origin: '*', methods: '*', allowedHeaders: ['Content-Type', 'Authorization'], credentials: true, }));
-var verifiedtoken;
-const key = "thisIsNotmySecret";
+var verifiedUser;
+const key = process.env.SECRET_KEY;
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -30,16 +32,16 @@ const userSchema = new mongoose.Schema({
 });
 
 const userModel = mongoose.model("User", userSchema);
-mongoose.connect("mongodb+srv://m92064030:6PhuPPyQfYrDRwwZ@cluster0.0gelzu4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+const mongoUri = process.env.MONGO_URI;
+mongoose.connect(mongoUri);
 
 // Download the helper library from https://www.twilio.com/docs/node/install
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
-const accountSid = "AC0d7457d10c2b1cd9f43b607296423561";
-const authToken = "c7bdc399bf7433f38f68d6f3fd006a6a";
-const verifySid = "VA9f62c22099eed2db8a265549bd2fdfbc";
+const accountSid = process.env.ACCOUNT_SID;
+const authToken = process.env.AUTH_TOKEN;
+const verifySid = process.env.VERIFY_SID;
 const client = require("twilio")(accountSid, authToken);
-
 
 
 app.get("/", (req, res) => {
@@ -134,39 +136,17 @@ app.post("/login", async (req, res) => {
     //     return res.status(401).json({ error: err });
     //   }
 
-    //    verifiedToken= decoded.userId;
+    //    verifiedUser= decoded.userId;
     // });
 
-    // res.status(200).json({verifiedToken});
+    // res.status(200).json({verifiedUser});
     res.status(200).json({ token });
-
-
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'User not found' });
   }
 })
-
-const verifyToken = (req, res, next) => {
-  // const token = req.headers.authorization;
-  // console.log(token);
-  console.log(req.headers.authorization);
-
-  // if (!token) {
-  //   return res.status(401).json({ error: 'Unauthorized - Token not provided' });
-  // }
-
-  // jwt.verify(token, key, (err, decoded) => {
-  //   if (err) {
-  //     return res.status(401).json({ error: err });
-  //   }
-
-  //   req.userId = decoded.userId;
-  //   next();
-  // });
-
-};
 
 app.post("/profile", async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
@@ -176,9 +156,9 @@ app.post("/profile", async (req, res) => {
     if (err) {
       return res.status(401).json({ error: err });
     }
-    verifiedtoken = user.userId;
+    verifiedUser = user.userId;
   })
-  res.status(200).json({ verifiedtoken });
+  res.status(200).json({ verifiedUser });
 })
 
 app.listen(port, () => {
