@@ -1,4 +1,3 @@
-require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -21,7 +20,7 @@ app.use(cors({
 }));
 
 var verifiedUser;
-const key = process.env.SECRET_KEY;
+const key = "thisIsNotmySecret";
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -32,16 +31,16 @@ const userSchema = new mongoose.Schema({
 });
 
 const userModel = mongoose.model("User", userSchema);
-const mongoUri = process.env.MONGO_URI;
-mongoose.connect(mongoUri);
+mongoose.connect("mongodb+srv://m92064030:6PhuPPyQfYrDRwwZ@cluster0.0gelzu4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
 // Download the helper library from https://www.twilio.com/docs/node/install
 // Set environment variables for your credentials
 // Read more at http://twil.io/secure
-const accountSid = process.env.ACCOUNT_SID;
-const authToken = process.env.AUTH_TOKEN;
-const verifySid = process.env.VERIFY_SID;
+const accountSid = "AC0d7457d10c2b1cd9f43b607296423561";
+const authToken = "c7bdc399bf7433f38f68d6f3fd006a6a";
+const verifySid = "VA9f62c22099eed2db8a265549bd2fdfbc";
 const client = require("twilio")(accountSid, authToken);
+
 
 
 app.get("/", (req, res) => {
