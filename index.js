@@ -21,7 +21,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// var token;
+var verifiedtoken;
 const key = "thisIsNotmySecret";
 
 const userSchema = new mongoose.Schema({
@@ -152,25 +152,36 @@ app.post("/login", async (req,res)=>{
 })
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
+  // const token = req.headers.authorization;
+  // console.log(token);
+  console.log(req.headers.authorization);
+
+  // if (!token) {
+  //   return res.status(401).json({ error: 'Unauthorized - Token not provided' });
+  // }
+
+  // jwt.verify(token, key, (err, decoded) => {
+  //   if (err) {
+  //     return res.status(401).json({ error: err });
+  //   }
+
+  //   req.userId = decoded.userId;
+  //   next();
+  // });
+
+};
+
+app.post("/profile" , async(req,res)=>{
+  const token = req.headers.authorization.split(' ')[1];
   console.log(token);
 
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized - Token not provided' });
-  }
-
-  jwt.verify(token, key, (err, decoded) => {
+  jwt.verify(token , key, (err , user)=>{
     if (err) {
       return res.status(401).json({ error: err });
     }
-
-    req.userId = decoded.userId;
-    next();
-  });
-};
-
-app.post("/profile" , verifyToken , async(req,res)=>{
-  res.json({user: req.userId});
+    verifiedtoken = user.userId;
+  })
+  res.status(200).json({verifiedtoken});
 })
 
 app.listen(port, () => {
