@@ -11,13 +11,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); 
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*'); 
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type');
+//   next();
+// });
+app.use(cors({ origin: '*', methods: '*', allowedHeaders: ['Content-Type', 'Authorization'], credentials: true, }));
 var verifiedtoken;
 const key = "thisIsNotmySecret";
 
@@ -47,12 +47,12 @@ app.get("/", (req, res) => {
 })
 
 app.post("/signup", async (req, res) => {
-  const { name,email,password,mobile } = req.body;
+  const { name, email, password, mobile } = req.body;
 
   // console.log(req.body);
 
   try {
-    
+
     const userExists = await userModel.findOne({ mobile: mobile });
     // console.log(userExists);
 
@@ -63,9 +63,9 @@ app.post("/signup", async (req, res) => {
         channel: 'sms',
       });
       console.log(verification.status);
-    
-      const hashedPassword = await bcrypt.hash(password,10);
-      
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const user = new userModel({
         name: name,
         email: email,
@@ -112,39 +112,39 @@ app.post('/verify', async (req, res) => {
   }
 });
 
-app.post("/login", async (req,res)=>{
-  const {email , password} = req.body;
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    const userExists = await userModel.findOne({email: email});
+    const userExists = await userModel.findOne({ email: email });
 
-    if(!userExists){
-      res.status(401).json({ error: 'Invalid credentials'});
-    } 
+    if (!userExists) {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
 
-    const passwordMatch = await bcrypt.compare(password , userExists.password);
-    if(!passwordMatch){
+    const passwordMatch = await bcrypt.compare(password, userExists.password);
+    if (!passwordMatch) {
       res.status(401).json({ message: 'Incorrect password' });
     }
 
-    const token = jwt.sign({userId: userExists._id}, key);
+    const token = jwt.sign({ userId: userExists._id }, key);
 
     // jwt.verify(token, key, (err, decoded) => {
     //   if (err) {
     //     return res.status(401).json({ error: err });
     //   }
-  
+
     //    verifiedToken= decoded.userId;
     // });
 
     // res.status(200).json({verifiedToken});
-    res.status(200).json({token});
+    res.status(200).json({ token });
 
 
-  
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({error: 'User not found'});
+    res.status(500).json({ error: 'User not found' });
   }
 })
 
@@ -168,17 +168,17 @@ const verifyToken = (req, res, next) => {
 
 };
 
-app.post("/profile" , async(req,res)=>{
+app.post("/profile", async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   console.log(token);
 
-  jwt.verify(token , key, (err , user)=>{
+  jwt.verify(token, key, (err, user) => {
     if (err) {
       return res.status(401).json({ error: err });
     }
     verifiedtoken = user.userId;
   })
-  res.status(200).json({verifiedtoken});
+  res.status(200).json({ verifiedtoken });
 })
 
 app.listen(port, () => {
